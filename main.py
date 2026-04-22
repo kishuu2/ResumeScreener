@@ -58,7 +58,7 @@ Nice to have:
 """
 
 try:
-    resume_text = Extract_Text_From_PDF(r"E:\MSc-AI-ML\Projects\ChatApp\ResumeScreener\ChokwalaKishanResume.pdf")
+    resume_text = Extract_Text_From_PDF(r"E:\MSc-AI-ML\Projects\ChatApp\ResumeScreener\frontend\ChokwalaKishanResume.pdf")
     print(f"Resume loaded. length: {len(resume_text)} characters.")
 except Exception as e:
     print(f"Error loading resume: {e}")

@@ -100,7 +100,7 @@ TypeScript
 # -------------------------
 # API endpoint
 # -------------------------
-@app.route("/screen_resume", methods=["POST"])
+@app.route("https://resumescreener-g9fy.onrender.com/screen_resume", methods=["POST"])
 def screen_resume():
 
     if "resume" not in request.files:
