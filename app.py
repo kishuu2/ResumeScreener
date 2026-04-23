@@ -7,7 +7,7 @@ from flask_cors import CORS
 from groq import Groq
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://kishuu2.github.io"])
 
 # Groq client - reads GROQ_API_KEY from environment variable
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
