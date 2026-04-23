@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>AI Resume Screener</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -39,7 +37,6 @@
             display: none;
         }
     </style>
-
 </head>
 
 <body>
@@ -47,7 +44,7 @@
     <div class="container-fluid p-4">
 
         <div class="d-flex justify-content-between align-items-center">
-            <h5>AI Screening Result</h5>
+            <h5>AI Resume Screener</h5>
             <button class="btn btn-md btn-outline-danger text-white" onclick="clearStorage()">
                 Clear
             </button>
@@ -55,20 +52,14 @@
 
         <!-- File Upload -->
         <div class="card p-3 mb-4">
-
             <label class="form-label">Upload Resume (PDF only)</label>
-
             <input type="file" class="form-control" id="pdfFile" accept="application/pdf">
-
-            <small class="text-muted mt-2">
-                Only PDF files allowed
-            </small>
-
+            <small class="text-muted mt-2">Only PDF files allowed</small>
         </div>
+
+        <!-- Job Description -->
         <div class="card p-3 mb-4">
-
             <label class="form-label">Job Description</label>
-
             <textarea id="jobDescription" class="form-control" rows="6">We are looking for a Junior Web Developer.
 
 Must have:
@@ -93,34 +84,20 @@ TypeScript</textarea>
 
             <!-- PDF Preview -->
             <div class="col-md-6">
-
                 <div class="card p-3">
-
                     <h5>Resume Preview</h5>
-
                     <iframe id="pdfPreview" class="hidden"></iframe>
-
                 </div>
-
-            </div><br><br><br><br>
-
+            </div>
 
             <!-- AI Result -->
             <div class="col-md-6">
                 <div class="card p-3" id="resultSection">
-
                     <h5>AI Screening Result</h5>
-
                     <div class="result-box" id="resultBox">
-
-                        <p class="text-muted">
-                            Upload a resume to see AI analysis
-                        </p>
-
+                        <p class="text-muted">Upload a resume to see AI analysis</p>
                     </div>
-
                 </div>
-
             </div>
 
         </div>
@@ -128,205 +105,151 @@ TypeScript</textarea>
     </div>
 
 
-<script>
+    <script>
 
-const pdfInput = document.getElementById("pdfFile");
-const preview = document.getElementById("pdfPreview");
-const resultBox = document.getElementById("resultBox");
+        const pdfInput = document.getElementById("pdfFile");
+        const preview = document.getElementById("pdfPreview");
+        const resultBox = document.getElementById("resultBox");
+        const analyzeBtn = document.getElementById("analyzeBtn");
 
-const analyzeBtn = document.getElementById("analyzeBtn");
-const jobContainer = document.getElementById("jobDescriptionContainer");
+        const API_URL = "https://resumescreener-g9fy.onrender.com/ResumeScreener";
 
-let currentFile = null;
-
-
-// ---------------------
-// Load from localStorage on startup
-// ---------------------
-window.onload = function () {
-
-    const savedPDF = localStorage.getItem("pdfPreview");
-    const savedResult = localStorage.getItem("aiResult");
-
-    if (savedPDF) {
-
-        preview.src = savedPDF;
-        preview.classList.remove("hidden");
-
-        jobContainer.classList.remove("hidden");
-
-    }
-
-    if (savedResult) {
-
-        resultBox.innerHTML = savedResult;
-
-    }
-
-};
+        let currentFile = null;
 
 
-
-// ---------------------
-// Handle file upload (ONLY preview here)
-// ---------------------
-pdfInput.addEventListener("change", function () {
-
-    const file = this.files[0];
-
-    if (!file) return;
-
-    if (file.type !== "application/pdf") {
-
-        alert("Only PDF allowed");
-        this.value = "";
-        return;
-
-    }
-
-    currentFile = file;
-
-    const fileURL = URL.createObjectURL(file);
-
-    preview.src = fileURL;
-    preview.classList.remove("hidden");
-
-    jobContainer.classList.remove("hidden");
-
-    // save preview
-    localStorage.setItem("pdfPreview", fileURL);
-
-});
+        // ---------------------
+        // Load from localStorage on startup
+        // ---------------------
+        window.onload = function () {
+            const savedResult = localStorage.getItem("aiResult");
+            if (savedResult) {
+                resultBox.innerHTML = savedResult;
+            }
+        };
 
 
+        // ---------------------
+        // Handle file upload (preview only)
+        // ---------------------
+        pdfInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
 
-// ---------------------
-// Analyze button click
-// ---------------------
-analyzeBtn.addEventListener("click", async function () {
+            if (file.type !== "application/pdf") {
+                alert("Only PDF allowed");
+                this.value = "";
+                return;
+            }
 
-    if (!currentFile) {
+            currentFile = file;
 
-        alert("Upload resume first");
-        return;
-
-    }
-
-    const jdText = document.getElementById("jobDescription").value;
-
-    if (!jdText.trim()) {
-
-        alert("Enter job description");
-        return;
-
-    }
+            const fileURL = URL.createObjectURL(file);
+            preview.src = fileURL;
+            preview.classList.remove("hidden");
+        });
 
 
-    // scroll to result section
-    document.getElementById("resultSection")
-        .scrollIntoView({ behavior: "smooth" });
+        // ---------------------
+        // Analyze button click
+        // ---------------------
+        analyzeBtn.addEventListener("click", async function () {
 
+            if (!currentFile) {
+                alert("Upload resume first");
+                return;
+            }
 
-    // show loading
-    resultBox.innerHTML = `
-        <div class="text-center mt-5">
+            const jdText = document.getElementById("jobDescription").value;
 
-            <div class="spinner-border text-light"></div>
+            if (!jdText.trim()) {
+                alert("Enter job description");
+                return;
+            }
 
-            <p class="mt-3">AI analyzing resume...</p>
+            // Scroll to result section
+            document.getElementById("resultSection").scrollIntoView({ behavior: "smooth" });
 
-        </div>
-    `;
+            // Show loading
+            resultBox.innerHTML = `
+                <div class="text-center mt-5">
+                    <div class="spinner-border text-light"></div>
+                    <p class="mt-3">AI analyzing resume...<br><small class="text-muted">Ollama (gemma3:1b) processing...</small></p>
+                </div>
+            `;
 
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = "Analyzing...";
 
-    const formData = new FormData();
+            const formData = new FormData();
+            formData.append("resume", currentFile);
+            formData.append("job_description", jdText);
 
-    formData.append("resume", currentFile);
-    formData.append("job_description", jdText);
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    body: formData
+                });
 
+                const data = await res.json();
 
-    try {
+                if (data.error) {
+                    resultBox.innerHTML = `<p class="text-danger">❌ Error: ${data.error}</p>`;
+                    return;
+                }
 
-        const res = await fetch("https://resumescreener-g9fy.onrender.com/ResumeScreener", {
+                const htmlResult = `
+                    <h4>${data.candidate_name || "Unknown Candidate"}</h4>
+                    <hr>
+                    <p><strong>Match Score:</strong> ${data.match_score}%</p>
+                    <p><strong>Recommendation:</strong>
+                        <span class="badge ${data.recommendation === 'Interview' ? 'bg-success' : 'bg-danger'}">
+                            ${data.recommendation}
+                        </span>
+                    </p>
+                    <p><strong>Reasoning:</strong> ${data.reasoning}</p>
 
-            method: "POST",
-            body: formData
+                    <p><strong>Key Strengths:</strong></p>
+                    <ul>
+                        ${(data.key_strengths || []).map(s => `<li>✅ ${s}</li>`).join("")}
+                    </ul>
+
+                    <p><strong>Missing Skills:</strong></p>
+                    <ul>
+                        ${(data.missing_critical_skills || []).map(s => `<li>❌ ${s}</li>`).join("")}
+                    </ul>
+                `;
+
+                resultBox.innerHTML = htmlResult;
+                localStorage.setItem("aiResult", htmlResult);
+
+            } catch (err) {
+                resultBox.innerHTML = `
+                    <p class="text-danger">
+                        ❌ Could not connect to Flask server.<br>
+                        <small>Make sure <code>python main.py</code> is running on port 5000.</small>
+                    </p>
+                `;
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = "Analyze Resume";
+            }
 
         });
 
-        const data = await res.json();
 
+        // ---------------------
+        // Clear storage
+        // ---------------------
+        function clearStorage() {
+            localStorage.removeItem("aiResult");
+            preview.src = "";
+            preview.classList.add("hidden");
+            resultBox.innerHTML = `<p class="text-muted">Upload a resume to see AI analysis</p>`;
+            pdfInput.value = "";
+            currentFile = null;
+        }
 
-        const htmlResult = `
-            <h4>${data.candidate_name}</h4>
-
-            <hr>
-
-            <p><strong>Match Score:</strong> ${data.match_score}%</p>
-
-            <p><strong>Recommendation:</strong> ${data.recommendation}</p>
-
-            <p><strong>Reason:</strong> ${data.reasoning}</p>
-
-            <p><strong>Missing Skills:</strong></p>
-
-            <ul>
-                ${data.missing_critical_skills.map(
-                    s => `<li>${s}</li>`
-                ).join("")}
-            </ul>
-        `;
-
-
-        resultBox.innerHTML = htmlResult;
-
-        localStorage.setItem("aiResult", htmlResult);
-
-    }
-    catch {
-
-        resultBox.innerHTML = `
-            <p class="text-danger">
-                Error analyzing resume
-            </p>
-        `;
-
-    }
-
-});
-
-
-
-
-// ---------------------
-// Clear storage function
-// ---------------------
-function clearStorage() {
-
-    localStorage.removeItem("pdfPreview");
-    localStorage.removeItem("aiResult");
-
-    preview.src = "";
-    preview.classList.add("hidden");
-
-    jobContainer.classList.add("hidden");
-
-    resultBox.innerHTML = `
-        <p class="text-muted">
-            Upload a resume to see AI analysis
-        </p>
-    `;
-
-    pdfInput.value = "";
-
-    currentFile = null;
-
-}
-
-
-</script>
-
+    </script>
 
 </body>
-
 </html>
